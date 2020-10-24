@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,36 +9,36 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IES.Controllers
 {
-    public class InstituicaoController : Controller
+    public class DepartamentoController : Controller
     {
         private readonly IESContext _context;
 
-        public InstituicaoController(IESContext context)
+        public DepartamentoController(IESContext context)
         {
             _context = context;
         }
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Instituicoes.OrderBy(i => i.Nome).ToListAsync());
+            var departamentos = await _context.Departamentos.OrderBy(d => d.Nome).ToListAsync();
+            return View(departamentos);
         }
 
-        public ActionResult Create()
+        public IActionResult Create()
         {
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind("Nome, Endereco")]Instituicao instituicao)
+        public async Task<IActionResult> Create([Bind("Nome")]Departamento departamento)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    _context.Instituicoes.Add(instituicao);
+                    _context.Add(departamento);
                     await _context.SaveChangesAsync();
-                    instituicao.InstituicaoID = _context.Instituicoes.Select(i => i.InstituicaoID).Max() + 1;
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -46,33 +46,31 @@ namespace IES.Controllers
             {
                 ModelState.AddModelError("", "Não foi possível inserir os dados.");
             }
-            return View(instituicao);
-
+            return View(departamento);
         }
 
-        public async Task<ActionResult> Edit(long id)
+        public async Task<IActionResult> Edit(long? id)
         {
-            var Id = _context.Instituicoes.Where(i => i.InstituicaoID == id).FirstOrDefault();
-            if (Id == null)
+            if(id == null)
             {
                 return NotFound();
             }
 
-            var instituicao = await _context.Instituicoes.SingleOrDefaultAsync(m => m.InstituicaoID == id);
+            var departamento = await _context.Departamentos.SingleOrDefaultAsync(m => m.DepartamentoID == id);
 
-            if (instituicao == null)
+            if(departamento == null)
             {
                 return NotFound();//Cod 404.
             }
 
-            return View(instituicao);
+            return View(departamento); 
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(long? id, [Bind("InstituicaoID,Nome,Endereco")]Instituicao instituicao)
+        public async Task<IActionResult> Edit(long? id, [Bind("DepartamentoID,Nome")]Departamento departamento)
         {
-            if (id != instituicao.InstituicaoID)
+            if(id != departamento.DepartamentoID)
             {
                 return NotFound();
             }
@@ -81,12 +79,12 @@ namespace IES.Controllers
             {
                 try
                 {
-                    _context.Update(instituicao);
+                    _context.Update(departamento);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!InstituicaoExists(instituicao.InstituicaoID))
+                    if (!DepartamentoExists(departamento.DepartamentoID))
                     {
                         return NotFound();
                     }
@@ -97,50 +95,53 @@ namespace IES.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(instituicao);
+            return View(departamento);
         }
 
-        private bool InstituicaoExists(long? instituicaoID)
-        {
-            return _context.Instituicoes.Any(e => e.InstituicaoID == instituicaoID);
-        }
-
-        public async Task<ActionResult> Details(long? id)
+        public async Task<IActionResult> Details(long? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-            var instituicao = await _context.Instituicoes.SingleOrDefaultAsync(m => m.InstituicaoID == id);
-            if (instituicao == null)
+            var departamento = await _context.Departamentos.SingleOrDefaultAsync(m => m.DepartamentoID == id);
+            if (departamento == null)
             {
                 return NotFound();
             }
-            return View(instituicao);
+            return View(departamento);
         }
 
-        public async Task<ActionResult> Delete(long? id)
+        public async Task<IActionResult> Delete(long? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-            var instituicao = await _context.Instituicoes.SingleOrDefaultAsync(m => m.InstituicaoID == id);
-            if (instituicao == null)
+            var departamento = await _context.Departamentos.SingleOrDefaultAsync(m => m.DepartamentoID == id);
+            if (departamento == null)
             {
                 return NotFound();
             }
-            return View(instituicao);
+            return View(departamento);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long? id)
         {
-            var instituicao = await _context.Instituicoes.SingleOrDefaultAsync(m => m.InstituicaoID == id);
-            _context.Instituicoes.Remove(instituicao);
+            var departamento = await _context.Departamentos.SingleOrDefaultAsync(m => m.DepartamentoID == id);
+            _context.Departamentos.Remove(departamento);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+
+
+
+        private bool DepartamentoExists(long? id)
+        {
+            return _context.Departamentos.Any(e => e.DepartamentoID == id);
         }
     }
 }
