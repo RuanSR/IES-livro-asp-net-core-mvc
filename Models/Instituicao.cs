@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
+
 namespace IES.Models
 {
     public class Instituicao
@@ -5,6 +8,8 @@ namespace IES.Models
         public long? InstituicaoID { get; set; }
         public string Nome { get; set; }
         public string Endereco { get; set; }
+
+        public virtual ICollection<Departamento> Departamentos { get; set; }
 
     }
 }

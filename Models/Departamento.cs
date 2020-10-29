@@ -9,5 +9,8 @@ namespace IES.Models
     {
         public long? DepartamentoID { get; set; }
         public string Nome { get; set; }
+
+        public long? InstituicaoId { get; set; }
+        public Instituicao Instituicao { get; set; }
     }
 }
