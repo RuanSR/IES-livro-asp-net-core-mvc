@@ -3,28 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IES.Data;
-using IES.Models;
+using IES.Data.DAL.Cadastros;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Modelo.Cadastros;
 
 namespace IES.Controllers
 {
     public class DepartamentoController : Controller
     {
         private readonly IESContext _context;
+        private readonly DepartamentoDAL departamentoDAL;
+        private readonly InstituicaoDAL instituicaoDAL;
 
         public DepartamentoController(IESContext context)
         {
             _context = context;
+            instituicaoDAL = new InstituicaoDAL(context);
+            departamentoDAL = new DepartamentoDAL(context);
         }
 
         public async Task<IActionResult> Index()
         {
-            var departamentos = await _context.Departamentos
-                .Include(i => i.Instituicao)
-                .OrderBy(d => d.Nome).ToListAsync();
-            return View(departamentos);
+            return View(await departamentoDAL.ObterDepartamentosClassificadosPorNome().ToListAsync());
         }
 
         public IActionResult Create()
@@ -43,8 +45,7 @@ namespace IES.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    _context.Add(departamento);
-                    await _context.SaveChangesAsync();
+                    await departamentoDAL.GravarDepartamento(departamento);
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -85,12 +86,11 @@ namespace IES.Controllers
             {
                 try
                 {
-                    _context.Update(departamento);
-                    await _context.SaveChangesAsync();
+                    await departamentoDAL.GravarDepartamento(departamento);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DepartamentoExists(departamento.DepartamentoID))
+                    if (!await DepartamentoExists(departamento.DepartamentoID))
                     {
                         return NotFound();
                     }
@@ -107,50 +107,42 @@ namespace IES.Controllers
 
         public async Task<IActionResult> Details(long? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var departamento = await _context.Departamentos
-                .SingleOrDefaultAsync(m => m.DepartamentoID == id);
-            _context.Instituicoes.Where(i => departamento.InstituicaoId == i.InstituicaoID).Load();
-
-            if (departamento == null)
-            {
-                return NotFound();
-            }
-            return View(departamento);
+            return await ObterVisaoDepartamentoPorId(id);
         }
 
         public async Task<IActionResult> Delete(long? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var departamento = await _context.Departamentos.SingleOrDefaultAsync(m => m.DepartamentoID == id);
-            _context.Instituicoes.Where(i => departamento.InstituicaoId == i.InstituicaoID).Load();
-            if (departamento == null)
-            {
-                return NotFound();
-            }
-            return View(departamento);
+            return await ObterVisaoDepartamentoPorId(id);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long? id)
         {
-            var departamento = await _context.Departamentos.SingleOrDefaultAsync(m => m.DepartamentoID == id);
-            _context.Departamentos.Remove(departamento);
+            var departamento = await departamentoDAL.EliminarDepartamentoPorId((long)id);
             TempData["Message"] = "Departamento " + departamento.Nome.ToUpper() + " foi removido";
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool DepartamentoExists(long? id)
+        private async Task<IActionResult> ObterVisaoDepartamentoPorId(long? id)
         {
-            return _context.Departamentos.Any(e => e.DepartamentoID == id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var departamento = await departamentoDAL.ObterDepartamentoPorId((long)id);
+            if (departamento == null)
+            {
+                return NotFound();
+            }
+
+            return View(departamento);
+        }
+
+        private async Task<bool> DepartamentoExists(long? id)
+        {
+            return await departamentoDAL.ObterDepartamentoPorId((long)id) != null;
         }
     }
 }
