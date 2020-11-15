@@ -1,0 +1,46 @@
+﻿@model Modelo.Discente.Academico
+
+@{
+    Layout = "~/Views/Shared/_LayoutIES.cshtml";
+}
+
+@section styles {
+    <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.min.css" />
+}
+
+<div class="card-block">
+    <div class="card-header text-white bg-secondary text-center h1">Exibindo um academico existente</div>
+    @{await Html.RenderPartialAsync("~/Views/Academico/_PartialDetailsContentCard.cshtml", Model);}
+    <div class="card-footer bg-info text-center text-white">
+        <a asp-action="Index" class="btn btn-danger">Retornar à listagem de academicos</a>
+        <button class="btn btn-dark" data-toggle="modal" data-target="#modalConfirmationDelete">
+            Remover Academico
+        </button>
+    </div>
+</div>
+
+<div class="modal fade" id="modalConfirmationDelete" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal">Remoção de Academico</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Confirma a exclusão do academico @Model.Nome.ToUpper() ??</p>
+            </div>
+            <div class="modal-footer">
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="AcademicoID" />
+                    <input type="submit" value="Remover Academico" class="btn btn-primary" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section ScriptPage {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
