@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using IES.Data;
 using IES.Data.DAL.Discente;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Modelo.Discente;
 
 namespace IES.Areas.Dicente.Controllers
@@ -14,11 +18,13 @@ namespace IES.Areas.Dicente.Controllers
     public class AcademicoController : Controller
     {
         private readonly IESContext _context;
+        private IHostingEnvironment _env;
         private readonly AcademicoDAL academicoDAL;
 
-        public AcademicoController(IESContext context)
+        public AcademicoController(IESContext context, IHostingEnvironment env)
         {
             _context = context;
+            _env = env;
             academicoDAL = new AcademicoDAL(context);
         }
 
@@ -59,6 +65,30 @@ namespace IES.Areas.Dicente.Controllers
             return await ObterVisaoAcademicoPorId(id);
         }
 
+        public async Task<FileContentResult> GetFoto(long id)
+        {
+            Academico academico = await academicoDAL.ObterAcademicoPorId(id);
+            if (academico != null)
+            {
+                return File(academico.Foto, academico.FotoMimeType);
+            }
+            return null;
+        }
+
+        public async Task<FileResult> DownloadFoto(long id)
+        {
+            Academico academico = await academicoDAL.ObterAcademicoPorId(id);
+            string nomeArquivo = "Foto" + academico.AcademicoID.ToString().Trim() + ".jpg";
+            FileStream fileStream = new FileStream(Path.Combine(_env.WebRootPath, nomeArquivo), FileMode.Create, FileAccess.Write);
+            fileStream.Write(academico.Foto, 0, academico.Foto.Length);
+            fileStream.Close();
+
+            IFileProvider provider = new PhysicalFileProvider(_env.WebRootPath);
+            IFileInfo fileInfo = provider.GetFileInfo(nomeArquivo);
+            var readStream = fileInfo.CreateReadStream();
+            return File(readStream, academico.FotoMimeType, nomeArquivo);
+        }
+
         //GET: Academico/Create
         public IActionResult Create()
         {
@@ -87,7 +117,7 @@ namespace IES.Areas.Dicente.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long? id, [Bind("AcademicoID, Nome, RegistroAcademico, Nascimento")]Academico academico)
+        public async Task<IActionResult> Edit(long? id, [Bind("AcademicoID,Nome,RegistroAcademico,Nascimento")] Academico academico, IFormFile foto, string chkRemoverFoto)
         {
             if (id != academico.AcademicoID)
             {
@@ -96,6 +126,17 @@ namespace IES.Areas.Dicente.Controllers
 
             if (ModelState.IsValid)
             {
+                var stream = new MemoryStream();
+                if (chkRemoverFoto == null)
+                {
+                    academico.Foto = null;
+                }
+                else
+                {
+                    await foto.CopyToAsync(stream);
+                    academico.Foto = stream.ToArray();
+                    academico.FotoMimeType = foto.ContentType;
+                }
                 try
                 {
                     await academicoDAL.GravarAcademico(academico);
