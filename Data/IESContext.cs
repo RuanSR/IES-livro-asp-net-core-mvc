@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using IES.Models.Infra;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Modelo.Cadastros;
 using Modelo.Discente;
 
 namespace IES.Data
 {
-    public class IESContext : DbContext
+    public class IESContext : IdentityDbContext<UsuarioDaAplicacao>
     {
         public IESContext(DbContextOptions<IESContext> options) : base(options)
         {

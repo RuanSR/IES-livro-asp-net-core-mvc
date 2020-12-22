@@ -31,7 +31,7 @@
             </div>
         </div>
         <div class="col-3">
-            @Html.Partial("~/Views/Instituicao/_ComDepartamentos.cshtml", Model.Departamentos.ToList())
+            @{ await Html.RenderPartialAsync("~/Areas/Cadastros/Views/Instituicao/_ComDepartamentos.cshtml", Model.Departamentos.ToList());}
         </div>
     </div>
 </div>

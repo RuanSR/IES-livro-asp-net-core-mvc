@@ -8,8 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Modelo.Discente;
 
-namespace IES.Controllers
+namespace IES.Areas.Dicente.Controllers
 {
+    [Area("Discente")]
     public class AcademicoController : Controller
     {
         private readonly IESContext _context;

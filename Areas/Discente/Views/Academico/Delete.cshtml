@@ -10,7 +10,7 @@
 
 <div class="card-block">
     <div class="card-header text-white bg-secondary text-center h1">Exibindo um academico existente</div>
-    @{await Html.RenderPartialAsync("~/Views/Academico/_PartialDetailsContentCard.cshtml", Model);}
+    @{await Html.RenderPartialAsync("~Areas/Discnete/Views/Academico/_PartialDetailsContentCard.cshtml", Model);}
     <div class="card-footer bg-info text-center text-white">
         <a asp-action="Index" class="btn btn-danger">Retornar à listagem de academicos</a>
         <button class="btn btn-dark" data-toggle="modal" data-target="#modalConfirmationDelete">

@@ -9,8 +9,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Modelo.Cadastros;
 
-namespace IES.Controllers
+namespace IES.Areas.Cadastros.Controllers
 {
+    [Area("Cadastros")]
     public class DepartamentoController : Controller
     {
         private readonly IESContext _context;

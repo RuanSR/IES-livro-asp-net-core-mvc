@@ -2,12 +2,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using IES.Data;
 using IES.Data.DAL.Cadastros;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Modelo.Cadastros;
 
-namespace IES.Controllers
+namespace IES.Areas.Cadastros.Controllers
 {
+    [Area("Cadastros")]
+    [Authorize]
     public class InstituicaoController : Controller
     {
         private readonly IESContext _context;
