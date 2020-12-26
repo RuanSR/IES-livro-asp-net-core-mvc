@@ -21,6 +21,12 @@ namespace IES.Data.DAL.Cadastros
             return _context.Departamentos.OrderBy(b => b.Nome);
         }
 
+        public IQueryable<Departamento> ObterDepartamentoPorInstituicao(long instituicaoID)
+        {
+            var departamentos = _context.Departamentos.Where(d => d.InstituicaoId == instituicaoID).OrderBy(d => d.Nome);
+            return departamentos;
+        }
+
         public async Task<Departamento> ObterDepartamentoPorId(long id)
         {
             var departamento = await _context.Departamentos.SingleOrDefaultAsync(m => m.InstituicaoId == id);

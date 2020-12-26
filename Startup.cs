@@ -35,6 +35,9 @@ namespace IES
                 options.LoginPath = "/Infra/Acessar";
                 options.AccessDeniedPath = "/Infra/AcessoNegado";
             });
+
+            services.AddSession();
+            services.AddDistributedMemoryCache();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,12 +53,13 @@ namespace IES
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseStatusCodePagesWithReExecute("Home/Error/", "?statusCode={0}");
-            //app.UseStatusCodePages();
+            //app.UseStatusCodePagesWithReExecute("Home/Error/", "?statusCode={0}");
+            app.UseStatusCodePages();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
 
